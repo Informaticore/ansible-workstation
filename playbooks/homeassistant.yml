@@ -1,0 +1,25 @@
+- hosts: services
+  pre_tasks:
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /data/homeassistant/config
+  # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html
+  tasks:
+    - name: Start Home Assistant in a docker container
+      community.docker.docker_container:
+        name: homeassistant
+        hostname: homeassistant
+        image: ghcr.io/home-assistant/home-assistant:stable
+        pull: true
+        restart: true
+        restart_policy: unless-stopped
+        privileged: true
+        network_mode: host
+        env:
+          TZ: Europe/Amsterdam
+        volumes:
+          - /data/homeassistant/config:/config
+          - /etc/localtime:/etc/localtime:ro

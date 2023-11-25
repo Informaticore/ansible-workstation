@@ -1,0 +1,18 @@
+# Set MTU for docker containers
+- hosts: all
+  pre_tasks:
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /etc/docker
+    - name: Copy some files to server
+      copy: src={{ item.src }} dest={{ item.dest }}
+      with_items:
+        - {
+            src: "../files/docker/daemon.json",
+            dest: "/etc/docker/daemon.json",
+          }
+  roles:
+    - role: geerlingguy.docker

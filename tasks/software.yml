@@ -1,0 +1,57 @@
+# update system
+- name: SOFTWARE - update apt repositories and cache
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+- name: SOFTWARE - apt upgrade all
+  apt: upgrade=dist force_apt_get=yes
+
+# install apt-transport-https
+- name: SOFTWARE - insall apt-transport-https
+  apt:
+    name: apt-transport-https
+    state: latest
+    update_cache: true
+- name: SOFTWARE - Add signing keys - chrome browser
+  apt_key:
+    url: "https://dl-ssl.google.com/linux/linux_signing_key.pub"
+- name: SOFTWARE - Add chrome browser repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main"
+    state: present
+    filename: google-chrome
+- name: SOFTWARE - Add signing keys - vscode
+  apt_key:
+    url: "https://packages.microsoft.com/keys/microsoft.asc"
+- name: SOFTWARE - Add vscode repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+    state: present
+    filename: code
+- name: Software - Add spotify-client
+  apt_key:
+    url: "https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg"
+- name: SOFTWARE - Add spotify-client repository
+  apt_repository:
+    repo: "deb http://repository.spotify.com stable non-free"
+    state: present
+    filename: spotify-client
+
+- name: SOFTWARE - install packages
+  apt:
+    name:
+      - curl
+      - htop
+      - wget
+      - zsh
+      - google-chrome-stable
+      - python3-smbc
+      - code
+      - spotify-client
+  register: result
+  until: result is not failed
+  retries: 5
+  delay: 5
+
+- name: SOFTWARE - Remove dependencies that are no longer required
+  apt:
+    autoremove: yes
